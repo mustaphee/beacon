@@ -1,15 +1,24 @@
-# coronavirus-tracker (API)
+<h1 align="center">
+  coronavirus-tracker (API)
+</h1>
 
-> This is a fast (< 200ms) and basic API for tracking development of the new coronavirus (COVID-19, SARS-CoV-2). It's written in python using 🍼 Flask.
+> This is a fast (< 200ms) and basic API for tracking development of the new coronavirus (COVID-19, SARS-CoV-2). It's written in python using 🍼 Flask. Supports multiple sources!
 
 ![Travis build](https://api.travis-ci.com/ExpDev07/coronavirus-tracker-api.svg?branch=master)
+[![License](https://img.shields.io/github/license/ExpDev07/coronavirus-tracker-api)](LICENSE.md)
 [![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
-![GitHub stars](https://img.shields.io/github/stars/ExpDev07/coronavirus-tracker-api)
-![GitHub forks](https://img.shields.io/github/forks/ExpDev07/coronavirus-tracker-api)
-![GitHub last commit](https://img.shields.io/github/last-commit/ExpDev07/coronavirus-tracker-api)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/ExpDev07/coronavirus-tracker-api)
-![GitHub issues](https://img.shields.io/github/issues/ExpDev07/coronavirus-tracker-api)
+[![GitHub stars](https://img.shields.io/github/stars/ExpDev07/coronavirus-tracker-api)](https://github.com/ExpDev07/coronavirus-tracker-api/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/ExpDev07/coronavirus-tracker-api)](https://github.com/ExpDev07/coronavirus-tracker-api/network/members)
+[![GitHub last commit](https://img.shields.io/github/last-commit/ExpDev07/coronavirus-tracker-api)](https://github.com/ExpDev07/coronavirus-tracker-api/commits/master)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/ExpDev07/coronavirus-tracker-api)](https://github.com/ExpDev07/coronavirus-tracker-api/pulls)
+[![GitHub issues](https://img.shields.io/github/issues/ExpDev07/coronavirus-tracker-api)](https://github.com/ExpDev07/coronavirus-tracker-api/issues)
 [![Tweet](https://img.shields.io/twitter/url?url=https%3A%2F%2Fgithub.com%2FExpDev07%2Fcoronavirus-tracker-api)](https://twitter.com/intent/tweet?text=COVID19%20Live%20Tracking%20API:%20&url=https%3A%2F%2Fgithub.com%2FExpDev07%2Fcoronavirus-tracker-api)
+
+**Live global stats (provided by [fight-covid19/bagdes](https://github.com/fight-covid19/bagdes)) from this API:**
+
+![Covid-19 Confirmed](https://covid19-badges.herokuapp.com/confirmed/latest)
+![Covid-19 Recovered](https://covid19-badges.herokuapp.com/recovered/latest)
+![Covid-19 Deaths](https://covid19-badges.herokuapp.com/deaths/latest)
 
 ## Endpoints
 
@@ -17,11 +26,13 @@ All requests must be made to the base url: ``https://coronavirus-tracker-api.her
 
 ### Picking data source
 
-We provide multiple data-sources you can pick from, simply add the query paramater ``?source=your_source_of_choice`` to your requests. JHU will be used as a default if you don't provide one.
+We provide multiple data-sources you can pick from, simply add the query parameter ``?source=your_source_of_choice`` to your requests. JHU will be used as a default if you don't provide one.
 
 #### Available sources:
 
 * **jhu** - https://github.com/CSSEGISandData/COVID-19 - Data repository operated by the Johns Hopkins University Center for Systems Science and Engineering (JHU CSSE).
+
+* **csbs** - https://www.csbs.org/information-covid-19-coronavirus - U.S. County data that comes from the Conference of State Bank Supervisors.
 
 * **... more to come later**.
 
@@ -45,6 +56,11 @@ GET /v2/locations
 ```
 ```json
 {
+  "latest": {
+    "confirmed": 272166,
+    "deaths": 11299,
+    "recovered": 87256
+  },
   "locations": [
     {
       "id": 0,
@@ -82,7 +98,7 @@ GET /v2/locations
 }
 ```
 
-Additionally, you can also filter by country ([alpha-2 country_code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)).
+Additionally, you can also filter by any attribute, including province and country ([alpha-2 country_code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)).
 ```http
 GET /v2/locations?country_code=US
 ```
@@ -126,19 +142,69 @@ Exclude timelines.
 GET /v2/locations?timelines=0
 ```
 
-## Data
-
-The data comes from the [2019 Novel Coronavirus (nCoV) Data Repository, provided
-by JHU CCSE](https://github.com/CSSEGISandData/2019-nCoV). It is
-programmatically retrieved, re-formatted and stored in the cache for one hour.
+### Getting US per county information.
+```http
+GET /v2/locations?source=csbs
+```
+```json
+{
+  "latest": {
+    "confirmed": 7596,
+    "deaths": 43,
+    "recovered": 0
+  },
+  "locations": [
+    {
+      "id": 0,
+      "country": "US",
+      "country_code": "US",
+      "province": "New York",
+      "state": "New York",
+      "county": "New York",
+      "last_updated": "2020-03-21T14:00:00Z",
+      "coordinates": {
+        "latitude": 40.71455,
+        "longitude": -74.00714
+      },
+      "latest": {
+        "confirmed": 6211,
+        "deaths": 43,
+        "recovered": 0
+      }
+    },
+    {
+      "id": 1,
+      "country": "US",
+      "country_code": "US",
+      "province": "New York",
+      "state": "New York",
+      "county": "Westchester",
+      "last_updated": "2020-03-21T14:00:00Z",
+      "coordinates": {
+        "latitude": 41.16319759,
+        "longitude": -73.7560629
+      },
+      "latest": {
+        "confirmed": 1385,
+        "deaths": 0,
+        "recovered": 0
+      },
+    }
+  ]
+}
+```
 
 ## Wrappers
 
 These are the available API wrappers created by the community. They are not necessarily maintained by any of this project's authors or contributors.
 
+### Golang
+
+* [Go-corona by @itsksaurabh](https://github.com/itsksaurabh/go-corona).
+
 ### C#
 
-* [Coronavirus tracker API Wrapper by @Abdirahiim](https://github.com/Abdirahiim/covidtrackerapiwrapper).
+* [CovidSharp by @Abdirahiim](https://github.com/Abdirahiim/covidtrackerapiwrapper).
 
 ### Python
 
@@ -205,6 +271,14 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://github.com/bjarkimg"><img src="https://avatars2.githubusercontent.com/u/1289419?v=4" width="100px;" alt=""/><br /><sub><b>bjarkimg</b></sub></a><br /><a href="#question-bjarkimg" title="Answering Questions">💬</a></td>
     <td align="center"><a href="https://github.com/Bost"><img src="https://avatars0.githubusercontent.com/u/1174677?v=4" width="100px;" alt=""/><br /><sub><b>Bost</b></sub></a><br /><a href="https://github.com/ExpDev07/coronavirus-tracker-api/commits?author=Bost" title="Documentation">📖</a></td>
     <td align="center"><a href="https://github.com/gribok"><img src="https://avatars1.githubusercontent.com/u/40306040?v=4" width="100px;" alt=""/><br /><sub><b>GRIBOK</b></sub></a><br /><a href="https://github.com/ExpDev07/coronavirus-tracker-api/commits?author=gribok" title="Code">💻</a> <a href="https://github.com/ExpDev07/coronavirus-tracker-api/commits?author=gribok" title="Tests">⚠️</a></td>
+    <td align="center"><a href="https://github.com/oliver-xapix-io"><img src="https://avatars0.githubusercontent.com/u/13470858?v=4" width="100px;" alt=""/><br /><sub><b>Oliver Thamm</b></sub></a><br /><a href="https://github.com/ExpDev07/coronavirus-tracker-api/commits?author=oliver-xapix-io" title="Documentation">📖</a></td>
+    <td align="center"><a href="https://maurom.dev"><img src="https://avatars1.githubusercontent.com/u/22800592?v=4" width="100px;" alt=""/><br /><sub><b>Mauro M.</b></sub></a><br /><a href="https://github.com/ExpDev07/coronavirus-tracker-api/commits?author=MM-coder" title="Documentation">📖</a></td>
+    <td align="center"><a href="https://github.com/JKSenthil"><img src="https://avatars2.githubusercontent.com/u/12533226?v=4" width="100px;" alt=""/><br /><sub><b>JKSenthil</b></sub></a><br /><a href="https://github.com/ExpDev07/coronavirus-tracker-api/commits?author=JKSenthil" title="Code">💻</a> <a href="https://github.com/ExpDev07/coronavirus-tracker-api/commits?author=JKSenthil" title="Documentation">📖</a> <a href="https://github.com/ExpDev07/coronavirus-tracker-api/commits?author=JKSenthil" title="Tests">⚠️</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/SeanCena"><img src="https://avatars1.githubusercontent.com/u/17202203?v=4" width="100px;" alt=""/><br /><sub><b>SeanCena</b></sub></a><br /><a href="https://github.com/ExpDev07/coronavirus-tracker-api/commits?author=SeanCena" title="Code">💻</a> <a href="https://github.com/ExpDev07/coronavirus-tracker-api/commits?author=SeanCena" title="Documentation">📖</a> <a href="https://github.com/ExpDev07/coronavirus-tracker-api/commits?author=SeanCena" title="Tests">⚠️</a></td>
+    <td align="center"><a href="https://github.com/Abdirahiim"><img src="https://avatars0.githubusercontent.com/u/13730460?v=4" width="100px;" alt=""/><br /><sub><b>Abdirahiim Yassin </b></sub></a><br /><a href="https://github.com/ExpDev07/coronavirus-tracker-api/commits?author=Abdirahiim" title="Documentation">📖</a></td>
+    <td align="center"><a href="https://github.com/kant"><img src="https://avatars1.githubusercontent.com/u/32717?v=4" width="100px;" alt=""/><br /><sub><b>Darío Hereñú</b></sub></a><br /><a href="https://github.com/ExpDev07/coronavirus-tracker-api/commits?author=kant" title="Documentation">📖</a></td>
   </tr>
 </table>
 
@@ -214,4 +288,4 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 
 ## License
 
-The data is available to the public strictly for educational and academic research purposes. Please link to this repo somewhere in your project :).
+See [LICENSE.md](LICENSE.md) for the license. Please link to this repo somewhere in your project :).
