@@ -92,7 +92,7 @@ def get_category(category):
         'locations': locations,
         'latest': latest,
         'last_updated': datetime.utcnow().isoformat() + 'Z',
-        'source': 'https://github.com/ExpDev07/coronavirus-tracker-api',
+        # 'source': 'https://github.com/ExpDev07/coronavirus-tracker-api',
     }
 
 @cached(cache=TTLCache(maxsize=1024, ttl=3600))
@@ -119,6 +119,12 @@ def get_locations():
             'deaths'    : deaths[index]['history'],
             'recovered' : recovered[index]['history'],
         }
+        print(confirmed[index]['history'])
+        yesterday = { 
+            'confirmed': list(confirmed[index]['history'].items())[-2][1],
+            'deaths'   : list(deaths[index]['history'].items())[-2][1],
+            'recovered': list(recovered[index]['history'].items())[-2][1]
+        }
 
         # Grab coordinates.
         coordinates = location['coordinates']
@@ -126,7 +132,7 @@ def get_locations():
         # Create location (supporting timelines) and append.
         locations.append(TimelinedLocation(
             # General info.
-            index, location['country'], location['province'], 
+            index, location['country'], location['province'],
             
             # Coordinates.
             Coordinates(
@@ -135,7 +141,7 @@ def get_locations():
             ),
 
             # Last update.
-            datetime.utcnow().isoformat() + 'Z',
+            datetime.utcnow().isoformat() + 'Z', yesterday,
         
             # Timelines (parse dates as ISO).
             {

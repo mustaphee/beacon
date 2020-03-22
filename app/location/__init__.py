@@ -6,7 +6,7 @@ class Location:
     A location in the world affected by the coronavirus.
     """
 
-    def __init__(self, id, country, province, coordinates, last_updated, confirmed, deaths, recovered):
+    def __init__(self, id, country, province, coordinates, last_updated, yesterday, confirmed, deaths, recovered):
         # General info.
         self.id = id
         self.country = country.strip()
@@ -15,6 +15,9 @@ class Location:
 
         # Last update.
         self.last_updated = last_updated
+
+        # history
+        self.yesterday = yesterday;
 
         # Statistics.
         self.confirmed = confirmed
@@ -48,6 +51,9 @@ class Location:
             # Last updated.
             'last_updated': self.last_updated,
 
+            # yesterday
+            'yesterday': self.yesterday,
+
             # Latest data (statistics).
             'latest': {
                 'confirmed': self.confirmed,
@@ -61,10 +67,10 @@ class TimelinedLocation(Location):
     A location with timelines.
     """
 
-    def __init__(self, id, country, province, coordinates, last_updated, timelines):
+    def __init__(self, id, country, province, coordinates, last_updated, yesterday, timelines):
         super().__init__(
             # General info.
-            id, country, province, coordinates, last_updated,
+            id, country, province, coordinates, last_updated, yesterday,
 
             # Statistics (retrieve latest from timelines).
             confirmed=timelines.get('confirmed').latest or 0,
