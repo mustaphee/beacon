@@ -8,7 +8,7 @@ def latest():
 
     # All the latest information.
     # latest = list(map(lambda location: location['latest'], locations))
-    print(locations)
+    # print(locations)
 
     return jsonify({
         'latest': {

@@ -2,6 +2,8 @@ from . import LocationService
 from ...location import TimelinedLocation
 from ...coordinates import Coordinates
 from ...timeline import Timeline
+import app
+from flask_pymongo import PyMongo
 
 class JhuLocationService(LocationService):
     """
