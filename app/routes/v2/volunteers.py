@@ -1,13 +1,16 @@
 from flask_pymongo import PyMongo
 from bson import json_util, ObjectId
 import json
+import requests
 
 from flask import jsonify, request, current_app as app
 from ...routes import api_v2 as api
 
+from cachetools import cached, TTLCache
+
 mongo = PyMongo(app, connect=True)
 # mongo = PyMongo()
-
+BASE_URL = 'http://newsapi.org/v2/top-headlines?q=coronavirus{}&apiKey=55ae0da6ab2b4fe09157434c11615961'
 
 print(mongo.db)
 
@@ -55,4 +58,15 @@ def delete_volunteers(id):
     except Exception as identifier:
         print(identifier)
         return jsonify({'status': 'fail', 'message': 'An error occured' }) 
-    
+
+@cached(cache=TTLCache(maxsize=1024, ttl=600))
+@api.route('/get-news-headlines')
+def get_news_headlines():
+    r = request.args.get('country', '')
+    if r.lower() == 'ng':
+        url = BASE_URL.format('&country=ng')
+    else:
+        url = BASE_URL.format('')
+    res = requests.get(url)
+    data = json.loads(res.content)
+    return jsonify(data)
