@@ -17,6 +17,10 @@ flask-cors = "*"
 cachetools = "*"
 python-dateutil = "*"
 flask-pymongo = "*"
+aiohttp = "*"
+nest-asyncio = "*"
+bs4 = "*"
+lxml = "*"
 
 [requires]
 python_version = "3.8"

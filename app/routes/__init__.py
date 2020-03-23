@@ -6,7 +6,7 @@ api_v1 = Blueprint('api_v1', __name__, url_prefix='')
 api_v2 = Blueprint('api_v2', __name__, url_prefix='/v2')
 
 # API version 2.
-from .v2 import locations, latest, volunteers
+from .v2 import locations, latest, volunteers, nigerian_news
 
 # API version 1.
 from .v1 import confirmed, deaths, recovered, all
