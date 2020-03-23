@@ -21,6 +21,7 @@ aiohttp = "*"
 nest-asyncio = "*"
 bs4 = "*"
 lxml = "*"
+idna-ssl = "*"
 
 [requires]
 python_version = "3.8"
