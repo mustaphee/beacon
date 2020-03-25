@@ -12,8 +12,8 @@ def create_app():
     """
     # Create flask app with CORS enabled.
     app = Flask(__name__)
-    # app.config['MONGO_URI'] = "mongodb://beacon:admin123@ds046377.mlab.com:46377/beacon?retryWrites=false"
-    app.config['MONGO_URI'] = "mongodb://root:admin123@localhost:27017/beacon?authSource=admin&retryWrites=false"
+    app.config['MONGO_URI'] = "mongodb://beacon:admin123@ds046377.mlab.com:46377/beacon?retryWrites=false"
+    # app.config['MONGO_URI'] = "mongodb://root:admin123@localhost:27017/beacon?authSource=admin&retryWrites=false"
     app.url_map.strict_slashes = False
     CORS(app)
     PyMongo(app)
