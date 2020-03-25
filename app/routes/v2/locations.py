@@ -10,7 +10,7 @@ def locations():
 
     # Retrieve all the locations.
     locations = request.source.get_all()
-
+    
     # Filtering by args if provided.
     for i in args:
         if i != 'timelines' and i[:2] != '__':

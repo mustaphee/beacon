@@ -5,6 +5,47 @@ from ...timeline import Timeline
 import app
 from flask_pymongo import PyMongo
 
+from collections import OrderedDict
+from flask import current_app as appp
+
+mongo = PyMongo(appp, connect=True)
+
+class TimeL:
+    """
+    Timeline clone.
+    """
+
+    def __init__(self, timelines, latestt):
+        self.__timeline = timelines
+        self.__latest = latestt
+
+    @property
+    def timeline(self):
+        """
+        Gets the history sorted by date (key).
+        """
+        return OrderedDict(sorted(self.__timeline.items()))
+
+    @property
+    def latest(self):
+        """
+        Gets the latest available history value.
+        """
+        return self.__latest or 0
+
+    def serialize(self):
+        """
+        Serializes the timeline into a dict.
+
+        :returns: The serialized timeline.
+        :rtype: dict
+        """
+        return {
+            'latest'  : self.latest,
+            'timeline': self.timeline
+        }
+
+
 class JhuLocationService(LocationService):
     """
     Service for retrieving locations from Johns Hopkins CSSE (https://github.com/CSSEGISandData/COVID-19).
@@ -112,8 +153,10 @@ def get_locations():
 
     # Final locations to return.
     locations = []
-
-    # Go through locations.
+    res = mongo.db.nigeria.find()
+    naija = list(res)
+    print(naija[0]['latest'])
+        # Go through locations.
     for index, location in enumerate(confirmed):
         # Get the timelines.
         timelines = {
@@ -121,16 +164,36 @@ def get_locations():
             'deaths'    : deaths[index]['history'],
             'recovered' : recovered[index]['history'],
         }
-        print(confirmed[index]['history'])
+        # print(confirmed[index]['history'])
         yesterday = { 
             'confirmed': list(confirmed[index]['history'].items())[-2][1],
             'deaths'   : list(deaths[index]['history'].items())[-2][1],
             'recovered': list(recovered[index]['history'].items())[-2][1]
         }
 
+        
+
+        
         # Grab coordinates.
         coordinates = location['coordinates']
+        
+        if location['country_code'] == 'NG':
+            print('i entered here')
+            location['latest'] = naija[0]['latest']
+            yesterday = naija[0]['locations'][0]['yesterday']
+            last_data = {
+                'confirmed': TimeL(confirmed[index]['history'],  naija[0]['latest']['confirmed']),
+                'deaths': TimeL(deaths[index]['history'], naija[0]['latest']['deaths']),
+                'recovered': TimeL(recovered[index]['history'],naija[0]['latest']['recovered'])
+            }
+        else:
+            last_data =    {
+                'confirmed': Timeline({ datetime.strptime(date, '%m/%d/%y').isoformat() + 'Z': amount for date, amount in timelines['confirmed'].items() }),
+                'deaths'   : Timeline({ datetime.strptime(date, '%m/%d/%y').isoformat() + 'Z': amount for date, amount in timelines['deaths'].items() }),
+                'recovered': Timeline({ datetime.strptime(date, '%m/%d/%y').isoformat() + 'Z': amount for date, amount in timelines['recovered'].items() })
+            }
 
+            # last_data = naija[0]['latest']
         # Create location (supporting timelines) and append.
         locations.append(TimelinedLocation(
             # General info.
@@ -144,14 +207,12 @@ def get_locations():
 
             # Last update.
             datetime.utcnow().isoformat() + 'Z', yesterday,
-        
+            
             # Timelines (parse dates as ISO).
-            {
-                'confirmed': Timeline({ datetime.strptime(date, '%m/%d/%y').isoformat() + 'Z': amount for date, amount in timelines['confirmed'].items() }),
-                'deaths'   : Timeline({ datetime.strptime(date, '%m/%d/%y').isoformat() + 'Z': amount for date, amount in timelines['deaths'].items() }),
-                'recovered': Timeline({ datetime.strptime(date, '%m/%d/%y').isoformat() + 'Z': amount for date, amount in timelines['recovered'].items() })
-            }
+            last_data
         ))
+            
+        
     
     # Finally, return the locations.
     return locations

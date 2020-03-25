@@ -2,6 +2,7 @@ from flask_pymongo import PyMongo
 from bson import json_util, ObjectId
 import json
 import requests
+from datetime import datetime as dt
 
 from flask import jsonify, request, current_app as app
 from ...routes import api_v2 as api
@@ -13,6 +14,7 @@ mongo = PyMongo(app, connect=True)
 BASE_URL = 'http://newsapi.org/v2/top-headlines?q=coronavirus{}&apiKey=55ae0da6ab2b4fe09157434c11615961'
 
 print(mongo.db)
+
 
 @api.route('/volunteers')
 def get_volunteers():
@@ -70,3 +72,41 @@ def get_news_headlines():
     res = requests.get(url)
     data = json.loads(res.content)
     return jsonify(data)
+
+@api.route('/update-ng-data', methods = ['PUT'])    
+def update_ng():
+    data = request.get_json()
+    
+
+    try:
+        if not data['deaths'] and not data['recovered'] and not data['confirmed']:
+            pass
+        r = mongo.db.nigeria.find_one({ 'country_name': 'Nigeria' })
+        latest = {
+            "confirmed": data['confirmed'],
+            "deaths": data['deaths'],
+            "recovered": data['recovered'],
+        }
+        if dt.now().day > int(r['locations'][0]['last_updated'][8:10]):
+            yesterday =  {
+                "confirmed": r['latest']['confirmed'],
+                "deaths": r['latest']['deaths'],
+                "recovered": r['latest']['recovered']
+            }
+            r['locations'][0]['yesterday'] = yesterday
+
+        r['locations'][0]['last_updated'] = str(dt.now()) + 'Z'
+        r['latest'] = latest
+        r['locations'][0]['latest'] = latest
+        
+        # print(r)'%m/%d/%y %H:%M:%S'
+        # return 'ok'
+        res = mongo.db.nigeria.update_one({'country_name': 'Nigeria'}, {'$set': r})
+        return jsonify({ 'status': 'success', 'data': str(res.modified_count)+ ' updated successfully' })
+    except KeyError as ke:
+        print(ke)
+        return jsonify({'status': 'fail', 'message': f'You did not supply the necessary data for {ke}' })
+
+    except Exception as i:
+        print(i)
+        return jsonify({'status': 'fail', 'message': 'An error occured' })
