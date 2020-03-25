@@ -91,13 +91,6 @@ def update_epidemic(id):
             dictedEpid['locations'][int(i)] = data
         else:
             dictedEpid['locations'].append(data)
-        # dictedEpid['locations'].append(data)
-        # if len(dictedEpid['locations']) > 1:
-        #     for i, location in enumerate(dictedEpid['locations']):
-        #         if location['country_name'].lower() == data['country_name'].lower():
-        #             dictedEpid['locations'].pop()
-        #             dictedEpid['locations'][i] == data
-        #             break
         totalConfirmed, totalDeaths, totalRecovered = 0, 0, 0
         for latest in dictedEpid['locations']:
             print(latest)
