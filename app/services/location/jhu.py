@@ -70,7 +70,7 @@ from ...utils import countrycodes, date as date_util
 """
 Base URL for fetching category.
 """
-base_url = 'https://raw.githubusercontent.com/CSSEGISandData/2019-nCoV/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-%s.csv';
+base_url = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_%s_global.csv'
 
 @cached(cache=TTLCache(maxsize=1024, ttl=3600))
 def get_category(category):
@@ -82,7 +82,7 @@ def get_category(category):
     """
 
     # Adhere to category naming standard.
-    category = category.lower().capitalize();
+    category = category.lower();
 
     # Request the data
     request = requests.get(base_url % category)
@@ -162,13 +162,13 @@ def get_locations():
         timelines = {
             'confirmed' : confirmed[index]['history'],
             'deaths'    : deaths[index]['history'],
-            'recovered' : recovered[index]['history'],
+            'recovered': recovered[index]['history'] if index < len(recovered) else recovered[0]['history'],
         }
         # print(confirmed[index]['history'])
         yesterday = { 
             'confirmed': list(confirmed[index]['history'].items())[-2][1],
             'deaths'   : list(deaths[index]['history'].items())[-2][1],
-            'recovered': list(recovered[index]['history'].items())[-2][1]
+            'recovered': list(recovered[index]['history'].items())[-2][1] if index < len(recovered) else 0
         }
 
         
@@ -176,9 +176,9 @@ def get_locations():
         
         # Grab coordinates.
         coordinates = location['coordinates']
-        
-        if location['country_code'] == 'NG':
+        if location['country_code'] == 'NG' and naija[0]['latest']['confirmed'] >= location['latest']:
             print('i entered here')
+            print(location['latest'])
             location['latest'] = naija[0]['latest']
             yesterday = naija[0]['locations'][0]['yesterday']
             last_data = {
@@ -190,7 +190,7 @@ def get_locations():
             last_data =    {
                 'confirmed': Timeline({ datetime.strptime(date, '%m/%d/%y').isoformat() + 'Z': amount for date, amount in timelines['confirmed'].items() }),
                 'deaths'   : Timeline({ datetime.strptime(date, '%m/%d/%y').isoformat() + 'Z': amount for date, amount in timelines['deaths'].items() }),
-                'recovered': Timeline({ datetime.strptime(date, '%m/%d/%y').isoformat() + 'Z': amount for date, amount in timelines['recovered'].items() })
+                'recovered': Timeline({ datetime.strptime(date, '%m/%d/%y').isoformat() + 'Z': amount for date, amount in timelines['recovered'].items()  })
             }
 
             # last_data = naija[0]['latest']
