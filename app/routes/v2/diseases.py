@@ -16,8 +16,9 @@ mongo = PyMongo(app, connect=True)
 
 class LatestModel(BaseModel):
     confirmed: int
-    recovered: int
+    recovered: int = None
     deaths: int
+    suspected: int
 
 class LocationModel(BaseModel):
     country_name: str
@@ -26,6 +27,7 @@ class LocationModel(BaseModel):
     province: str = ''
     yesterday: Dict = {}
     latest: LatestModel
+    key_points: str = ''
 
 class DiseaseModel(BaseModel):
     name: str
@@ -80,8 +82,7 @@ def is_existing(locations, country_name):
 @api.route('/epidemic/<id>', methods=['PUT'])
 def update_epidemic(id):
     try:
-        data = request.get_json()
-        data = dict(data)
+        data = dict(request.get_json())
         epid = mongo.db.epidemic.find_one({'_id': ObjectId(id) })
         dictedEpid = dict(epid)
         
@@ -98,7 +99,8 @@ def update_epidemic(id):
                 totalConfirmed = totalConfirmed + latest['latest']['confirmed']
                 totalDeaths = totalDeaths + latest['latest']['deaths']
                 totalRecovered = totalRecovered + latest['latest']['recovered']
-        totalLatest = {'confirmed': totalConfirmed, 'deaths': totalDeaths, 'recovered': totalRecovered }
+                totalSuspected = totalSuspected + latest['latest']['suspected']
+        totalLatest = {'confirmed': totalConfirmed, 'deaths': totalDeaths, 'recovered': totalRecovered, 'suspected': totalSuspected }
         dictedEpid['latest'] = totalLatest
         print(dictedEpid)
 
