@@ -71,6 +71,13 @@ def get_news_headlines():
         url = BASE_URL.format('')
     res = requests.get(url)
     data = json.loads(res.content)
+    for art in data['articles']:
+        if not art['urlToImage']:
+            art['urlToImage'] = ''
+        if not art['author']:
+            art['author'] = ''
+        if not art['source']['id']:
+            art['source']['id'] = ''
     return jsonify(data)
 
 @api.route('/update-ng-data', methods = ['PUT'])    
